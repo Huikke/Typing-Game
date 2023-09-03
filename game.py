@@ -10,20 +10,21 @@ clock = pygame.time.Clock()
 font = pygame.font.Font("C:\Windows\Fonts\msgothic.ttc", 500)
 pygame.display.set_caption("Typing Game")
 
+# Database
+letters_dict = {"a": "あ", "i": "い", "u": "う", "e": "え", "o": "お"}
+
 # Generate and display a letter into the game
 # Is ran every time player presses the correct button
 # Returns index which corresponds with pygame keyboard button for checking the answer
-def char_spawn(char=None):
-    chars = [("あ", "a"), ("い", "i"), ("う", "u"), ("え", "e"), ("お", "o")]
-    if char == None:
-        rand = random.randint(0,4)
-        char = chars[rand]
+def char_spawn(letter=None):
+    if letter == None:
+        letter = random.choice(list(letters_dict.keys()))
 
-    char_surf = font.render(char[0], False, "Black")
-    char_rect = char_surf.get_rect(center = (400, 400))
-    screen.blit(char_surf, char_rect)
+    letter_surf = font.render(letters_dict[letter], False, "Black")
+    letter_rect = letter_surf.get_rect(center = (400, 400))
+    screen.blit(letter_surf, letter_rect)
 
-    return char
+    return letter
 
 # Update score by 1 and display it
 # Takes parameter score and return score with +1
@@ -70,19 +71,19 @@ while True:
         # Handles keyboard presses
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_a:
-                if answer[1] == "a":
+                if answer == "a":
                     next = True
             elif event.key == pygame.K_i:
-                if answer[1] == "i":
+                if answer == "i":
                     next = True
             elif event.key == pygame.K_u:
-                if answer[1] == "u":
+                if answer == "u":
                     next = True
             elif event.key == pygame.K_e:
-                if answer[1] == "e":
+                if answer == "e":
                     next = True
             elif event.key == pygame.K_o:
-                if answer[1] == "o":
+                if answer == "o":
                     next = True
 
     # Screen background
