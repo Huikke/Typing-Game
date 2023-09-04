@@ -35,13 +35,18 @@ def score_handler(score):
 # Returns remaining_time for the game to know when timer ends
 def timer():
     current_time = int(pygame.time.get_ticks() / 10)
-    remaining_time = time * 100 - current_time
+    remaining_time = time_limit * 100 - current_time
 
     timer_surf = pygame.font.SysFont(None, 50).render(str(remaining_time), False, "Black")
     timer_rect = timer_surf.get_rect(topright = (800, 0))
-    screen.blit(timer_surf,timer_rect)
+    screen.blit(timer_surf, timer_rect)
 
     return remaining_time
+
+def counter():
+    counter_surf = pygame.font.SysFont(None, 50).render(str(count), False, "Black")
+    counter_rect = counter_surf.get_rect(topright = (800, 0))
+    screen.blit(counter_surf, counter_rect)
 
 # Creates input box below the letter
 def input_box():
@@ -52,15 +57,17 @@ def input_box():
     screen.blit(text_surf, (text_box.x+10, text_box.y+10))
 
 # Gameplay variables
+mode = "count"
+time_limit = 30 # In seconds, only used in time mode
+count = 20 # how many characters to type, only used in count mode
+
+# Stats
 score = 0
 right = 0
 wrong = 0
-next = False
-first = True
-input_text = ""
-time = 30 # In seconds
 
 # Game loop
+first = True
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -69,6 +76,7 @@ while True:
 
         # Generate the first character
         if first == True:
+            input_text = ""
             answer = char_spawn()
             first = False
 
@@ -85,6 +93,8 @@ while True:
                     score += 1
                     score_handler(score)
                     right += 1
+                    if mode == "count":
+                        count -= 1
                 # Answer is wrong
                 else:
                     # Generate a new letter and update stats
@@ -92,6 +102,8 @@ while True:
                     score -= 1
                     score_handler(score)
                     wrong += 1
+                    if mode == "count":
+                        count -= 1
                 
                 # Reset input_text
                 input_text = ""
@@ -99,7 +111,7 @@ while True:
                 input_text = input_text[:-1]
             else:
                 input_text += event.unicode
-    
+
     # Screen background
     screen.fill((204, 190, 35))
     # Blit after screen update
@@ -108,13 +120,22 @@ while True:
     input_box()
 
     # When timer reaches zero, game ends
-    remaining_time = timer()
-    if remaining_time < 0:
-        print("Right answers:", right)
-        print("Wrong answers:", wrong)
-        print("Final Score:", score)
-        pygame.quit()
-        sys.exit()
+    if mode == "time":
+        remaining_time = timer()
+        if remaining_time <= 0:
+            print("Right answers:", right)
+            print("Wrong answers:", wrong)
+            print("Final Score:", score)
+            pygame.quit()
+            sys.exit()
+    if mode == "count":
+        counter()
+        if count <= 0:
+            print("Right answers:", right)
+            print("Wrong answers:", wrong)
+            print("Final Score:", score)
+            pygame.quit()
+            sys.exit()
 
     pygame.display.update()
     clock.tick(30)
