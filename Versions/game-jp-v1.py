@@ -25,11 +25,17 @@ def char_spawn(letter=None):
 
     return letter
 
-# Blit score
-def score_handler(score):
+# Update score by 1 and display it
+# Takes parameter score and return score with +1
+def score_handler(score, next):
+    if next:
+        score += 1
+
     score_surf = pygame.font.SysFont(None, 100).render(str(score), False, "Black")
     score_rect = score_surf.get_rect(center = (400, 100))
     screen.blit(score_surf, score_rect)
+
+    return score
 
 # Time limit in the game, game ends when remaining_time hits zero
 # Returns remaining_time for the game to know when timer ends
@@ -43,21 +49,10 @@ def timer():
 
     return remaining_time
 
-# Creates input box below the letter
-def input_box():
-    text_box = pygame.Rect(350, 650, 80, 50)
-    pygame.draw.rect(screen, "White", text_box)
-
-    text_surf = pygame.font.SysFont(None, 50).render(input_text, False, "Black")
-    screen.blit(text_surf, (text_box.x+10, text_box.y+10))
-
 # Gameplay variables
 score = 0
-right = 0
-wrong = 0
 next = False
 first = True
-input_text = ""
 time = 30 # In seconds
 
 # Game loop
@@ -74,44 +69,38 @@ while True:
 
         # Handles keyboard presses
         if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_SPACE or event.key == pygame.K_RETURN:
-                # Don't do anything when user hasn't inputed yet to avoid missclicks
-                if input_text == "":
-                    pass
-                # Answer is right
-                elif input_text.lower() == answer:
-                    # Generate a new letter and update stats
-                    answer = char_spawn()
-                    score += 1
-                    score_handler(score)
-                    right += 1
-                # Answer is wrong
-                else:
-                    # Generate a new letter and update stats
-                    answer = char_spawn()
-                    score -= 1
-                    score_handler(score)
-                    wrong += 1
-                
-                # Reset input_text
-                input_text = ""
-            elif event.key == pygame.K_BACKSPACE:
-                input_text = input_text[:-1]
-            else:
-                input_text += event.unicode
-    
+            if event.key == pygame.K_a:
+                if answer == "a":
+                    next = True
+            elif event.key == pygame.K_i:
+                if answer == "i":
+                    next = True
+            elif event.key == pygame.K_u:
+                if answer == "u":
+                    next = True
+            elif event.key == pygame.K_e:
+                if answer == "e":
+                    next = True
+            elif event.key == pygame.K_o:
+                if answer == "o":
+                    next = True
+
     # Screen background
     screen.fill((204, 190, 35))
-    # Blit after screen update
-    char_spawn(answer)
-    score_handler(score)
-    input_box()
+
+    # If next is True, the game updates
+    # Else blit the same view again
+    if next == True:
+        answer = char_spawn()
+        score = score_handler(score, True)
+        next = False
+    else:
+        answer = char_spawn(answer)
+        score = score_handler(score, False)
 
     # When timer reaches zero, game ends
     remaining_time = timer()
     if remaining_time < 0:
-        print("Right answers:", right)
-        print("Wrong answers:", wrong)
         print("Final Score:", score)
         pygame.quit()
         sys.exit()
