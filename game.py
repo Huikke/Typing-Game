@@ -7,7 +7,6 @@ import random
 pygame.init()
 screen = pygame.display.set_mode((800,800))
 clock = pygame.time.Clock()
-font = pygame.font.Font("C:\Windows\Fonts\msgothic.ttc", 500)
 pygame.display.set_caption("Typing Game")
 
 # Database
@@ -20,7 +19,7 @@ def char_spawn(letter=None):
     if letter == None:
         letter = random.choice(list(letters_dict.keys()))
 
-    letter_surf = font.render(letters_dict[letter], False, "Black")
+    letter_surf = pygame.font.SysFont("msgothic", 500).render(letters_dict[letter], False, "Black")
     letter_rect = letter_surf.get_rect(center = (400, 400))
     screen.blit(letter_surf, letter_rect)
 
