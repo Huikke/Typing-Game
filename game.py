@@ -10,7 +10,18 @@ clock = pygame.time.Clock()
 pygame.display.set_caption("Typing Game")
 
 # Database
-letters_dict = {"a": "あ", "i": "い", "u": "う", "e": "え", "o": "お"}
+letters_dict = {"a": "あ", "i": "い", "u": "う", "e": "え", "o": "お",
+                "ka": "か", "ki": "き", "ku": "く", "ke": "け", "ko": "こ",
+                "sa": "さ", "shi": "し", "su": "す", "se": "せ", "so": "そ",
+                "ta": "た", "chi": "ち", "tsu": "つ", "te": "て", "to": "と",
+                "na": "な", "ni": "に", "nu": "ぬ", "ne": "ね", "no": "の",
+                "ha": "は", "hi": "ひ", "fu": "ふ", "he": "へ", "ho": "ほ",
+                # ま,み,む,め,も,
+                # や,ゆ,よ
+                # ら,り,る,れ,ろ
+                # わ,を,
+                # ん
+                }
 
 # Generate and display a letter into the game
 # Is ran every time player presses the correct button
@@ -24,6 +35,14 @@ def char_spawn(letter=None):
     screen.blit(letter_surf, letter_rect)
 
     return letter
+
+# Creates input box below the letter
+def input_box():
+    text_box = pygame.Rect(350, 650, 80, 50)
+    pygame.draw.rect(screen, "White", text_box)
+
+    text_surf = pygame.font.SysFont(None, 50).render(input_text, False, "Black")
+    screen.blit(text_surf, (text_box.x+10, text_box.y+10))
 
 # Blit score
 def score_handler(score):
@@ -47,14 +66,6 @@ def counter():
     counter_surf = pygame.font.SysFont(None, 50).render(str(count), False, "Black")
     counter_rect = counter_surf.get_rect(topright = (800, 0))
     screen.blit(counter_surf, counter_rect)
-
-# Creates input box below the letter
-def input_box():
-    text_box = pygame.Rect(350, 650, 80, 50)
-    pygame.draw.rect(screen, "White", text_box)
-
-    text_surf = pygame.font.SysFont(None, 50).render(input_text, False, "Black")
-    screen.blit(text_surf, (text_box.x+10, text_box.y+10))
 
 # Gameplay variables
 mode = "count"
