@@ -16,11 +16,11 @@ letters_dict = {"a": "あ", "i": "い", "u": "う", "e": "え", "o": "お",
                 "ta": "た", "chi": "ち", "tsu": "つ", "te": "て", "to": "と",
                 "na": "な", "ni": "に", "nu": "ぬ", "ne": "ね", "no": "の",
                 "ha": "は", "hi": "ひ", "fu": "ふ", "he": "へ", "ho": "ほ",
-                # ま,み,む,め,も,
-                # や,ゆ,よ
-                # ら,り,る,れ,ろ
-                # わ,を,
-                # ん
+                "ma": "ま", "mi": "み", "mu": "む", "me": "め", "mo": "も",
+                "ya": "や",             "yu": "ゆ",             "yo": "よ",
+                "ra": "ら", "ri": "り", "ru": "る", "re": "れ", "ro": "ろ",
+                "wa": "わ",                                     "wo": "を",
+                "n": "ん"
                 }
 
 # Generate and display a letter into the game
@@ -28,11 +28,19 @@ letters_dict = {"a": "あ", "i": "い", "u": "う", "e": "え", "o": "お",
 # Returns index which corresponds with pygame keyboard button for checking the answer
 def char_spawn(letter=None):
     if letter == None:
-        letter = random.choice(list(letters_dict.keys()))
+        # If mode is elimination, choose from temporary dict, and delete the entry from dict
+        if mode == "elimination":
+            if len(letters_dict_ephemeral) > 0: # Skip when dict is empty
+                letter = random.choice(list(letters_dict_ephemeral.keys()))
+                del letters_dict_ephemeral[letter]
+        # Else just choose a random entry from dict
+        else:
+            letter = random.choice(list(letters_dict.keys()))
 
-    letter_surf = pygame.font.SysFont("msgothic", 500).render(letters_dict[letter], False, "Black")
-    letter_rect = letter_surf.get_rect(center = (400, 400))
-    screen.blit(letter_surf, letter_rect)
+    if letter != None: # For the case when dict is empty, skip drawing
+        letter_surf = pygame.font.SysFont("msgothic", 500).render(letters_dict[letter], False, "Black")
+        letter_rect = letter_surf.get_rect(center = (400, 400))
+        screen.blit(letter_surf, letter_rect)
 
     return letter
 
@@ -62,13 +70,14 @@ def timer():
 
     return remaining_time
 
-def counter():
-    counter_surf = pygame.font.SysFont(None, 50).render(str(count), False, "Black")
+def counter(count):
+    counter_surf = pygame.font.SysFont(None, 50).render("Left: " + str(count), False, "Black")
     counter_rect = counter_surf.get_rect(topright = (800, 0))
     screen.blit(counter_surf, counter_rect)
 
 # Gameplay variables
-mode = "count"
+# Currently available modes: time, count, elimination
+mode = "elimination"
 time_limit = 30 # In seconds, only used in time mode
 count = 20 # how many characters to type, only used in count mode
 
@@ -79,6 +88,7 @@ wrong = 0
 
 # Game loop
 first = True
+game_end = False
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -88,6 +98,7 @@ while True:
         # Generate the first character
         if first == True:
             input_text = ""
+            letters_dict_ephemeral = dict(letters_dict) # used in elimination mode
             answer = char_spawn()
             first = False
 
@@ -95,27 +106,21 @@ while True:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE or event.key == pygame.K_RETURN:
                 # Don't do anything when user hasn't inputed yet to avoid missclicks
-                if input_text == "":
-                    pass
-                # Answer is right
-                elif input_text.lower() == answer:
-                    # Generate a new letter and update stats
+                if input_text != "":
+                    # Answer is right
+                    if input_text.lower() == answer:
+                        score += 1
+                        right += 1
+                    # Answer is wrong
+                    else:
+                        score -= 1
+                        wrong += 1
+                    # Generate a new letter
                     answer = char_spawn()
-                    score += 1
-                    score_handler(score)
-                    right += 1
+                    # Count mode specific
                     if mode == "count":
                         count -= 1
-                # Answer is wrong
-                else:
-                    # Generate a new letter and update stats
-                    answer = char_spawn()
-                    score -= 1
-                    score_handler(score)
-                    wrong += 1
-                    if mode == "count":
-                        count -= 1
-                
+
                 # Reset input_text
                 input_text = ""
             elif event.key == pygame.K_BACKSPACE:
@@ -130,23 +135,33 @@ while True:
     score_handler(score)
     input_box()
 
-    # When timer reaches zero, game ends
+    # Settings depending on the mode
     if mode == "time":
+        # Blit timer
         remaining_time = timer()
+        # When timer reaches zero, game ends
         if remaining_time <= 0:
-            print("Right answers:", right)
-            print("Wrong answers:", wrong)
-            print("Final Score:", score)
-            pygame.quit()
-            sys.exit()
-    if mode == "count":
-        counter()
-        if count <= 0:
-            print("Right answers:", right)
-            print("Wrong answers:", wrong)
-            print("Final Score:", score)
-            pygame.quit()
-            sys.exit()
+            game_end = True
+    elif mode == "count":
+        # Blit remaining letters left to solve
+        counter(count-1)
+        # When count reaches zero, game ends
+        if count == 0:
+            game_end = True
+    elif mode == "elimination":
+        # Blit remaining letters left to solve
+        counter(len(letters_dict_ephemeral))
+        # answer == None means there is no more letters to solve, thus game ends
+        if answer == None:
+            game_end = True
+
+    # Activates when game ends
+    if game_end:
+        print("Right answers:", right)
+        print("Wrong answers:", wrong)
+        print("Final Score:", score)
+        pygame.quit()
+        sys.exit()
 
     pygame.display.update()
     clock.tick(30)
