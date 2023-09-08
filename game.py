@@ -1,4 +1,4 @@
-# Hiragana game
+# Japanese Typing Game
 
 import pygame
 import sys
@@ -7,21 +7,20 @@ import random
 pygame.init()
 screen = pygame.display.set_mode((800,800))
 clock = pygame.time.Clock()
-pygame.display.set_caption("Typing Game")
+pygame.display.set_caption("Kana Strike")
 
 # Database
-letters_dict = {"a": "あ", "i": "い", "u": "う", "e": "え", "o": "お",
-                "ka": "か", "ki": "き", "ku": "く", "ke": "け", "ko": "こ",
-                "sa": "さ", "shi": "し", "su": "す", "se": "せ", "so": "そ",
-                "ta": "た", "chi": "ち", "tsu": "つ", "te": "て", "to": "と",
-                "na": "な", "ni": "に", "nu": "ぬ", "ne": "ね", "no": "の",
-                "ha": "は", "hi": "ひ", "fu": "ふ", "he": "へ", "ho": "ほ",
-                "ma": "ま", "mi": "み", "mu": "む", "me": "め", "mo": "も",
-                "ya": "や",             "yu": "ゆ",             "yo": "よ",
-                "ra": "ら", "ri": "り", "ru": "る", "re": "れ", "ro": "ろ",
-                "wa": "わ",                                     "wo": "を",
-                "n": "ん"
-                }
+letters_dict = {'a': ('あ', 'ア'), 'i': ('い', 'イ'), 'u': ('う', 'ウ'), 'e': ('え', 'エ'), 'o': ('お', 'オ'),
+                'ka': ('か', 'カ'), 'ki': ('き', 'キ'), 'ku': ('く', 'ク'), 'ke': ('け', 'ケ'), 'ko': ('こ', 'コ'),
+                'sa': ('さ', 'サ'), 'shi': ('し', 'シ'), 'su': ('す', 'ス'), 'se': ('せ', 'セ'), 'so': ('そ', 'ソ'),
+                'ta': ('た', 'タ'), 'chi': ('ち', 'チ'), 'tsu': ('つ', 'ツ'), 'te': ('て', 'テ'), 'to': ('と', 'ト'),
+                'na': ('な', 'ナ'), 'ni': ('に', '二'), 'nu': ('ぬ', 'ヌ'), 'ne': ('ね', 'ネ'), 'no': ('の', 'ノ'),
+                'ha': ('は', 'ハ'), 'hi': ('ひ', 'ヒ'), 'fu': ('ふ', 'フ'), 'he': ('へ', 'ヘ'), 'ho': ('ほ', 'ホ'),
+                'ma': ('ま', 'マ'), 'mi': ('み', 'ミ'), 'mu': ('む', 'ム'), 'me': ('め', 'メ'), 'mo': ('も', 'モ'),
+                'ya': ('や', 'ヤ'),                     'yu': ('ゆ', 'ユ'),                    'yo': ('よ', 'ヨ'),
+                'ra': ('ら', 'ラ'), 'ri': ('り', 'リ'), 'ru': ('る', 'ル'), 're': ('れ', 'レ'), 'ro': ('ろ', 'ロ'),
+                'wa': ('わ', 'ワ'),                                                            'wo': ('を', 'ヲ'),
+                'n': ('ん', 'ン')}
 
 # Generate and display a letter into the game
 # Is ran every time player presses the correct button
@@ -38,7 +37,7 @@ def char_spawn(letter=None):
             letter = random.choice(list(letters_dict.keys()))
 
     if letter != None: # For the case when dict is empty, skip drawing
-        letter_surf = pygame.font.SysFont("msgothic", 500).render(letters_dict[letter], False, "Black")
+        letter_surf = pygame.font.SysFont("msgothic", 500).render(letters_dict[letter][writing_system], False, "Black")
         letter_rect = letter_surf.get_rect(center = (400, 400))
         screen.blit(letter_surf, letter_rect)
 
@@ -80,6 +79,7 @@ def counter(count):
 mode = "elimination"
 time_limit = 30 # In seconds, only used in time mode
 count = 20 # how many characters to type, only used in count mode
+writing_system = 1 # 0 = hiragana, 1 = katakana
 
 # Stats
 score = 0
