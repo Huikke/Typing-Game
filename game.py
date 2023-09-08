@@ -23,9 +23,10 @@ letters_dict = {'a': ('あ', 'ア'), 'i': ('い', 'イ'), 'u': ('う', 'ウ'), '
                 'n': ('ん', 'ン')}
 
 # Generate and display a letter into the game
-# Is ran every time player presses the correct button
-# Returns index which corresponds with pygame keyboard button for checking the answer
-def char_spawn(letter=None):
+# Is ran every loop, and gives next letter when letter == None
+# Takes in what writing system should be used and optionally the letter when refreshing screen
+# Returns the letter and writing system
+def char_spawn(writing_system=int, letter=None) -> tuple:
     if letter == None:
         # If mode is elimination, choose from temporary dict, and delete the entry from dict
         if mode == "elimination":
@@ -35,13 +36,17 @@ def char_spawn(letter=None):
         # Else just choose a random entry from dict
         else:
             letter = random.choice(list(letters_dict.keys()))
+        
+        # Changes writing system to hiragana or katakana randomly when writing_system is 2
+        if writing_system == 2:
+            writing_system = random.randint(0, 1)
 
     if letter != None: # For the case when dict is empty, skip drawing
         letter_surf = pygame.font.SysFont("msgothic", 500).render(letters_dict[letter][writing_system], False, "Black")
         letter_rect = letter_surf.get_rect(center = (400, 400))
         screen.blit(letter_surf, letter_rect)
 
-    return letter
+    return letter, writing_system
 
 # Creates input box below the letter
 def input_box():
@@ -77,9 +82,9 @@ def counter(count):
 # Gameplay variables
 # Currently available modes: time, count, elimination
 mode = "elimination"
+writing_system = 2 # 0 = hiragana, 1 = katakana, 2 = Randomize
 time_limit = 30 # In seconds, only used in time mode
 count = 20 # how many characters to type, only used in count mode
-writing_system = 1 # 0 = hiragana, 1 = katakana
 
 # Stats
 score = 0
@@ -99,7 +104,7 @@ while True:
         if first == True:
             input_text = ""
             letters_dict_ephemeral = dict(letters_dict) # used in elimination mode
-            answer = char_spawn()
+            answer, writing_system_current = char_spawn(writing_system)
             first = False
 
         # Handles keyboard presses
@@ -116,7 +121,7 @@ while True:
                         score -= 1
                         wrong += 1
                     # Generate a new letter
-                    answer = char_spawn()
+                    answer, writing_system_current = char_spawn(writing_system)
                     # Count mode specific
                     if mode == "count":
                         count -= 1
@@ -131,7 +136,7 @@ while True:
     # Screen background
     screen.fill((204, 190, 35))
     # Blit after screen update
-    char_spawn(answer)
+    char_spawn(writing_system_current, answer)
     score_handler(score)
     input_box()
 
