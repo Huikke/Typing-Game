@@ -3,6 +3,7 @@
 import pygame
 import sys
 import random
+from save_score import save_score
 
 pygame.init()
 screen = pygame.display.set_mode((800,800))
@@ -99,7 +100,7 @@ def stats_handler(correct):
 # Currently available modes: time, count, elimination
 mode = "time"
 writing_system = 0 # 0 = hiragana, 1 = katakana, 2 = Randomize
-time_limit = 30 # In seconds, only used in time mode
+time_limit = 10 # In seconds, only used in time mode
 count = 20 # how many characters to type, only used in count mode
 
 # Stats
@@ -180,7 +181,7 @@ while True:
         print("Final Score:", score)
         print("Right answers:", sum(stats_list[:len(letters_dict)*2]))
         print("Wrong answers:", sum(stats_list[len(letters_dict)*2:]))
-        print(stats_list)
+        save_score(stats_list)
         pygame.quit()
         sys.exit()
 
