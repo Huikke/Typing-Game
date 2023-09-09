@@ -10,7 +10,8 @@ clock = pygame.time.Clock()
 pygame.display.set_caption("Kana Strike")
 
 # Database
-letters_dict = {'a': ('あ', 'ア'), 'i': ('い', 'イ'), 'u': ('う', 'ウ'), 'e': ('え', 'エ'), 'o': ('お', 'オ'),
+letters_dict = {
+                'a': ('あ', 'ア'), 'i': ('い', 'イ'), 'u': ('う', 'ウ'), 'e': ('え', 'エ'), 'o': ('お', 'オ'),
                 'ka': ('か', 'カ'), 'ki': ('き', 'キ'), 'ku': ('く', 'ク'), 'ke': ('け', 'ケ'), 'ko': ('こ', 'コ'),
                 'sa': ('さ', 'サ'), 'shi': ('し', 'シ'), 'su': ('す', 'ス'), 'se': ('せ', 'セ'), 'so': ('そ', 'ソ'),
                 'ta': ('た', 'タ'), 'chi': ('ち', 'チ'), 'tsu': ('つ', 'ツ'), 'te': ('て', 'テ'), 'to': ('と', 'ト'),
@@ -20,7 +21,8 @@ letters_dict = {'a': ('あ', 'ア'), 'i': ('い', 'イ'), 'u': ('う', 'ウ'), '
                 'ya': ('や', 'ヤ'),                     'yu': ('ゆ', 'ユ'),                    'yo': ('よ', 'ヨ'),
                 'ra': ('ら', 'ラ'), 'ri': ('り', 'リ'), 'ru': ('る', 'ル'), 're': ('れ', 'レ'), 'ro': ('ろ', 'ロ'),
                 'wa': ('わ', 'ワ'),                                                            'wo': ('を', 'ヲ'),
-                'n': ('ん', 'ン')}
+                'n': ('ん', 'ン')
+                }
 
 # Generate and display a letter into the game
 # Is ran every loop, and gives next letter when letter == None
@@ -79,17 +81,30 @@ def counter(count):
     counter_rect = counter_surf.get_rect(topright = (800, 0))
     screen.blit(counter_surf, counter_rect)
 
+# Adds +1 to correct index in stats_list
+def stats_handler(correct):
+    # Get letter's index corresponding to letters_dict
+    letter_index = list(letters_dict.keys()).index(answer)
+    # Katakana comes after hiragana
+    if writing_system_current == 1:
+        letter_index += len(letters_dict)
+    # Wrong answers comes after katakana
+    if correct == False:
+        letter_index += len(letters_dict) * 2
+    # Adds +1
+    stats_list[letter_index] += 1
+
+
 # Gameplay variables
 # Currently available modes: time, count, elimination
-mode = "elimination"
-writing_system = 2 # 0 = hiragana, 1 = katakana, 2 = Randomize
+mode = "time"
+writing_system = 0 # 0 = hiragana, 1 = katakana, 2 = Randomize
 time_limit = 30 # In seconds, only used in time mode
 count = 20 # how many characters to type, only used in count mode
 
 # Stats
+stats_list = [0] * len(letters_dict) * 4
 score = 0
-right = 0
-wrong = 0
 
 # Game loop
 first = True
@@ -114,12 +129,12 @@ while True:
                 if input_text != "":
                     # Answer is right
                     if input_text.lower() == answer:
+                        stats_handler(True)
                         score += 1
-                        right += 1
                     # Answer is wrong
                     else:
+                        stats_handler(False)
                         score -= 1
-                        wrong += 1
                     # Generate a new letter
                     answer, writing_system_current = char_spawn(writing_system)
                     # Count mode specific
@@ -162,9 +177,10 @@ while True:
 
     # Activates when game ends
     if game_end:
-        print("Right answers:", right)
-        print("Wrong answers:", wrong)
         print("Final Score:", score)
+        print("Right answers:", sum(stats_list[:len(letters_dict)*2]))
+        print("Wrong answers:", sum(stats_list[len(letters_dict)*2:]))
+        print(stats_list)
         pygame.quit()
         sys.exit()
 
