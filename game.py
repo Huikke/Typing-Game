@@ -33,12 +33,12 @@ def char_spawn(writing_system=int, letter=None) -> tuple:
     if letter == None:
         # If mode is elimination, choose from temporary dict, and delete the entry from dict
         if mode == "elimination":
-            if len(letters_dict_ephemeral) > 0: # Skip when dict is empty
-                letter = random.choice(list(letters_dict_ephemeral.keys()))
-                del letters_dict_ephemeral[letter]
+            if len(letters_dict_current) > 0: # Skip when dict is empty
+                letter = random.choice(list(letters_dict_current.keys()))
+                del letters_dict_current[letter]
         # Else just choose a random entry from dict
         else:
-            letter = random.choice(list(letters_dict.keys()))
+            letter = random.choice(list(letters_dict_current.keys()))
         
         # Changes writing system to hiragana or katakana randomly when writing_system is 2
         if writing_system == 2:
@@ -98,10 +98,11 @@ def stats_handler(correct):
 
 # Gameplay variables
 # Currently available modes: time, count, elimination
-mode = "time"
-writing_system = 0 # 0 = hiragana, 1 = katakana, 2 = Randomize
+mode = "count"
+writing_system = 1 # 0 = hiragana, 1 = katakana, 2 = Randomize
 time_limit = 10 # In seconds, only used in time mode
 count = 20 # how many characters to type, only used in count mode
+letters_limit = 10 # how many letters are included. False with every letter, Int with that amount of letters.
 
 # Stats
 stats_list = [0] * len(letters_dict) * 4
@@ -119,7 +120,10 @@ while True:
         # Generate the first character
         if first == True:
             input_text = ""
-            letters_dict_ephemeral = dict(letters_dict) # used in elimination mode
+            if letters_limit != False:
+                letters_dict_current = {k: letters_dict[k] for k in list(letters_dict)[:letters_limit]}
+            else:
+                letters_dict_current = dict(letters_dict) # used in elimination mode
             answer, writing_system_current = char_spawn(writing_system)
             first = False
 
@@ -171,7 +175,7 @@ while True:
             game_end = True
     elif mode == "elimination":
         # Blit remaining letters left to solve
-        counter(len(letters_dict_ephemeral))
+        counter(len(letters_dict_current))
         # answer == None means there is no more letters to solve, thus game ends
         if answer == None:
             game_end = True
