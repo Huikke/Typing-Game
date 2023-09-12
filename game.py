@@ -82,6 +82,15 @@ def counter(count):
     counter_rect = counter_surf.get_rect(topright = (800, 0))
     screen.blit(counter_surf, counter_rect)
 
+# After getting correct/incorrect answer, visually show it with +1 or -1 besides the score
+def score_ghost(correct):
+    if correct:
+        ghost_surf = pygame.font.SysFont(None, 50).render("+1", False, "Dark Green")
+    else:
+        ghost_surf = pygame.font.SysFont(None, 50).render("-1", False, "Red")
+    ghost_rect = ghost_surf.get_rect(center = (460, 100))
+    screen.blit(ghost_surf, ghost_rect)
+
 # Adds +1 to correct index in stats_list
 def stats_handler(correct):
     # Get letter's index corresponding to letters_dict
@@ -98,11 +107,11 @@ def stats_handler(correct):
 
 # Gameplay variables
 # Currently available modes: time, count, elimination
-mode = "count"
+mode = "elimination"
 writing_system = 1 # 0 = hiragana, 1 = katakana, 2 = Randomize
 time_limit = 10 # In seconds, only used in time mode
 count = 20 # how many characters to type, only used in count mode
-letters_limit = 10 # how many letters are included. False with every letter, Int with that amount of letters.
+letters_limit = 30 # how many letters are included. False with every letter, Int with that amount of letters.
 
 # Stats
 stats_list = [0] * len(letters_dict) * 4
@@ -125,6 +134,7 @@ while True:
             else:
                 letters_dict_current = dict(letters_dict) # used in elimination mode
             answer, writing_system_current = char_spawn(writing_system)
+            score_ghost_time = False
             first = False
 
         # Handles keyboard presses
@@ -136,15 +146,20 @@ while True:
                     if input_text.lower() == answer:
                         stats_handler(True)
                         score += 1
+                        correct = True
                     # Answer is wrong
                     else:
                         stats_handler(False)
                         score -= 1
+                        correct = False
                     # Generate a new letter
                     answer, writing_system_current = char_spawn(writing_system)
                     # Count mode specific
                     if mode == "count":
                         count -= 1
+                    
+                    # Display score ghost for 1.25 sec
+                    score_ghost_time = pygame.time.get_ticks() + 1250
 
                 # Reset input_text
                 input_text = ""
@@ -153,12 +168,16 @@ while True:
             else:
                 input_text += event.unicode
 
-    # Screen background
-    screen.fill((204, 190, 35))
-    # Blit after screen update
+    # Screen elements
+    screen.fill((204, 190, 35)) # Screen background
     char_spawn(writing_system_current, answer)
     score_handler(score)
     input_box()
+    # Time based screen elements
+    current_time = pygame.time.get_ticks()
+    if score_ghost_time > current_time:
+        score_ghost(correct)
+
 
     # Settings depending on the mode
     if mode == "time":
