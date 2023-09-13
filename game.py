@@ -40,12 +40,15 @@ def char_spawn(writing_system=int, letter=None) -> tuple:
         else:
             letter = random.choice(list(letters_dict_current.keys()))
         
-        # Changes writing system to hiragana or katakana randomly when writing_system is 2
-        if writing_system == 2:
+        # Changes writing system to hiragana or katakana randomly when writing_system is 3
+        if writing_system == 3:
             writing_system = random.randint(0, 1)
 
     if letter != None: # For the case when dict is empty, skip drawing
-        letter_surf = pygame.font.SysFont("msgothic", 500).render(letters_dict[letter][writing_system], False, "Black")
+        if writing_system == 2:
+            letter_surf = pygame.font.SysFont(None, 500).render(letter.upper(), False, "Black")
+        else:
+            letter_surf = pygame.font.SysFont("msgothic", 500).render(letters_dict[letter][writing_system], False, "Black")
         letter_rect = letter_surf.get_rect(center = (400, 400))
         screen.blit(letter_surf, letter_rect)
 
@@ -108,10 +111,10 @@ def stats_handler(correct):
 # Gameplay variables
 # Currently available modes: time, count, elimination
 mode = "elimination"
-writing_system = 1 # 0 = hiragana, 1 = katakana, 2 = Randomize
+writing_system = 2 # 0 = hiragana, 1 = katakana, 2 = Romaji, 3 = Randomize
 time_limit = 10 # In seconds, only used in time mode
 count = 20 # how many characters to type, only used in count mode
-letters_limit = 30 # how many letters are included. False with every letter, Int with that amount of letters.
+letters_limit = False # how many letters are included. False with every letter, Int with that amount of letters.
 
 # Stats
 stats_list = [0] * len(letters_dict) * 4
