@@ -94,6 +94,16 @@ def score_ghost(correct):
     ghost_rect = ghost_surf.get_rect(center = (460, 100))
     screen.blit(ghost_surf, ghost_rect)
 
+# Shows Hiragana and Katakana after answering in romaji system
+def letter_ghost(letter):
+    ghost_h_surf = pygame.font.SysFont("msgothic", 200).render(letters_dict[letter][0], False, "Black")
+    ghost_h_rect = ghost_h_surf.get_rect(center = (200, 600))
+    screen.blit(ghost_h_surf, ghost_h_rect)
+
+    ghost_k_surf = pygame.font.SysFont("msgothic", 200).render(letters_dict[letter][1], False, "Black")
+    ghost_k_rect = ghost_k_surf.get_rect(center = (600, 600))
+    screen.blit(ghost_k_surf, ghost_k_rect)
+
 # Adds +1 to correct index in stats_list
 def stats_handler(correct):
     # Get letter's index corresponding to letters_dict
@@ -138,6 +148,7 @@ while True:
                 letters_dict_current = dict(letters_dict) # used in elimination mode
             answer, writing_system_current = char_spawn(writing_system)
             score_ghost_time = False
+            letter_ghost_time = False # romaji specific
             first = False
 
         # Handles keyboard presses
@@ -155,14 +166,20 @@ while True:
                         stats_handler(False)
                         score -= 1
                         correct = False
+
+                    # Romajii system
+                    if writing_system == 2:
+                        letter_ghost_time = pygame.time.get_ticks() + 3000
+                        ghost_letter = answer
                     # Generate a new letter
                     answer, writing_system_current = char_spawn(writing_system)
                     # Count mode specific
                     if mode == "count":
                         count -= 1
-                    
+
                     # Display score ghost for 1.25 sec
                     score_ghost_time = pygame.time.get_ticks() + 1250
+                    
 
                 # Reset input_text
                 input_text = ""
@@ -170,6 +187,7 @@ while True:
                 input_text = input_text[:-1]
             else:
                 input_text += event.unicode
+
 
     # Screen elements
     screen.fill((204, 190, 35)) # Screen background
@@ -180,6 +198,8 @@ while True:
     current_time = pygame.time.get_ticks()
     if score_ghost_time > current_time:
         score_ghost(correct)
+    if letter_ghost_time > current_time:
+        letter_ghost(ghost_letter)
 
 
     # Settings depending on the mode
